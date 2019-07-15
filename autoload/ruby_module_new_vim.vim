@@ -18,11 +18,23 @@ fun ruby_module_new_vim#SetNewModule()
   endif
   let l:path = strcharpart(l:path, 4)
   let l:list = matchlist(l:path, '\v([0-9a-z_/]+)\.rb')
-
-  let l:module = join(map(split(l:list[1], '/'), function('ruby_module_new_vim#PascalCase')), '::')
-
   call setline('.', '# frozen_string_literal: true')
-  call append(1, ['', 'module '.l:module, 'end'])
+
+  " insert balnk line
+  call append(1, '')
+
+  let l:module_num = 0
+
+  let l:module_nesting = map(split(l:list[1], '/'), function('ruby_module_new_vim#PascalCase'))
+  for module in l:module_nesting
+    let l:indention = ''
+    while strlen(l:indention) < l:module_num * 2
+      let l:indention = l:indention.'  '
+    endwhile
+
+    call append(l:module_num + 2, [l:indention.'module '.l:module, l:indention.'end'])
+    let l:module_num = l:module_num + 1
+  endfor
 endfun
 
 func ruby_module_new_vim#PascalCase(key, val)
